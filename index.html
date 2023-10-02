@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>THE MUSICAL MOOD METER</title>
+        <link rel="stylesheet" href="style.css">
+        <script type="text/javascript">
+
+                var snd, sndPick, isLoaded = false;
+                var isPlaying = false;
+                var audioCtx;
+                var allSoundsLoaded = false;
+                const PAN = 0.5;
+                var activeSnds = [];
+                
+                //value 0 is id, value 1 is emotion, value 2 is number of sounds, value 3 is sound counter
+                var sounds = [
+                    //ROW 1
+                    ['e0', 'enraged', 1, 0, false], //enraged 1
+                    ['e1', 'panicked', 2, 0, false], //panicked 2
+                    ['e2', 'stressed', 1, 0, false], //stressed 1
+                    ['e3', 'jittery', 2, 0, false], //jittery 2
+                    ['e4', 'shocked', 2, 0, false], //shocked 2
+                    ['e5', 'surprised', 1, 0, false], //surprised 1
+                    ['e6', 'upbeat', 2, 0, false], //upbeat 2
+                    ['e7', 'festive', 3, 0, false], //festive 3
+                    ['e8', 'exhilirated', 2, 0, false], //exhilirated 2
+                    ['e9', 'ecstatic', 2, 0, false], //ecstatic 2
+
+                    //ROW 2
+                    ['e10', 'livid', 1, 0, false], //livid 1
+                    ['e11', 'furious', 2, 0, false], //furious 2
+                    ['e12', 'frustrated', 1, 0, false], //frustrated 1
+                    ['e13', 'tense', 2, 0, false], //tense 2
+                    ['e14', 'stunned', 1, 0, false], //stunned 1
+                    ['e15', 'hyper', 4, 0, false], //hyper 4
+                    ['e16', 'cheerful', 1, 0, false], //cheerful 1
+                    ['e17', 'motivated', 1, 0, false], //motivated 1
+                    ['e18', 'inspired', 2, 0, false], //inspired 2
+                    ['e19', 'elated', 1, 0, false], //elated 1
+
+                    //ROW 3
+                    ['e20', 'fuming', 1, 0, false], //fuming 1
+                    ['e21', 'frightened', 1, 0, false], //frightened 1
+                    ['e22', 'angry', 2, 0, false], //angry 2
+                    ['e23', 'nervous', 2, 0, false], //nervous 2
+                    ['e24', 'restless', 1, 0, false], //restless 1
+                    ['e25', 'energized', 2, 0, false], //energized 2
+                    ['e26', 'lively', 2, 0, false], //lively 2
+                    ['e27', 'excited', 2, 0, false], //excited 2
+                    ['e28', 'optimistic', 2, 0, false], //optimistic 2
+                    ['e29', 'enthusiastic', 4, 0, false], //enthusiastic 4
+
+                    //ROW 4
+                    ['e30', 'anxious',1,0, false], //anxious 1
+                    ['e31', 'apprehensive',1,0, false], //apprehensive 1
+                    ['e32', 'worried',3,0, false], //worried 3
+                    ['e33', 'irritated',3,0, false], //irritated 3
+                    ['e34', 'annoyed',1,0, false], //annoyed 1
+                    ['e35', 'pleased',2,0, false], //pleased 2
+                    ['e36', 'focused',1,0, false], //focused 1
+                    ['e37', 'happy',9,0, false], //happy 9
+                    ['e38', 'proud',2,0, false], //proud 2
+                    ['e39', 'thrilled',2,0, false], //thrilled 2
+                    
+                    //ROW 5
+                    ['e40', 'repulsed',1,0, false], //repulsed 1
+                    ['e41', 'troubled',1,0, false], //troubled 1
+                    ['e42', 'concerned',1,0, false], //concerned 1
+                    ['e43', 'uneasy',1,0, false], //uneasy 1
+                    ['e44', 'peeved',1,0, false], //peeved 1
+                    ['e45', 'pleasant',3,0, false], //pleasant 3
+                    ['e46', 'joyful',5,0, false], //joyful 5
+                    ['e47', 'hopeful',2,0, false], //hopeful 2
+                    ['e48', 'playful',3,0, false], //playful 3
+                    ['e49', 'blissful',3,0, false], //blissful 3
+                    
+                    //ROW 6
+                    ['e50', 'disgusted',1,0, false], //disgusted 1
+                    ['e51', 'glum',2,0, false], //glum 2
+                    ['e52', 'disappointed',1,0, false], //disappointed 1
+                    ['e53', 'down',1,0, false], //down 1
+                    ['e54', 'apathetic',1,0, false], //apathetic 1
+                    ['e55', 'atease',2,0, false], //at ease 2
+                    ['e56', 'easygoing',2,0, false], //easygoing 2
+                    ['e57', 'content',2,0, false], //content 2
+                    ['e58', 'loving',1,0, false], //loving 1
+                    ['e59', 'fulfilled',1,0, false], //fulfilled 1
+                    
+                    //ROW 7
+                    ['e60', 'pessimistic',1,0, false], //pessimistic 1
+                    ['e61', 'morose',1,0, false], //morose 1
+                    ['e62', 'discouraged',1,0, false], //discouraged 1
+                    ['e63', 'sad',2,0, false], //sad 2
+                    ['e64', 'bored',1,0, false], //bored 1
+                    ['e65', 'calm',3,0, false], //calm 3
+                    ['e66', 'secure',2,0, false], //secure 2
+                    ['e67', 'satisfied',2,0, false], //satisfied 2
+                    ['e68', 'grateful',2,0, false], //grateful 2
+                    ['e69', 'touched',1,0, false], //touched 1
+                    
+                    //ROW 8
+                    ['e70', 'alienated',1,0, false], //alienated - 1
+                    ['e71', 'miserable',1,0, false], //miserable 1
+                    ['e72', 'lonely',3,0, false], //lonely 3
+                    ['e73', 'disheartened',1,0, false], //disheartened 1
+                    ['e74', 'tired',2,0, false], //tired 2
+                    ['e75', 'relaxed',2,0, false], //relaxed 2
+                    ['e76', 'chill',1,0, false], //chill 1
+                    ['e77', 'restful',1,0, false], //restful 1
+                    ['e78', 'blessed',1,0, false], //blessed 1
+                    ['e79', 'balanced',1,0, false], //balanced 1
+                    
+                    //ROW 9
+                    ['e80', 'despondent',1,0, false], //despondent 1
+                    ['e81', 'depressed',2,0, false], //depressed 2
+                    ['e82', 'sullen',1,0, false], //sullen 1
+                    ['e83', 'exhausted',1,0, false], //exhausted 1
+                    ['e84', 'fatigued',1,0, false], //fatigued 1
+                    ['e85', 'mellow',1,0, false], //mellow 1
+                    ['e86', 'thoughtful',1,0, false], //thoughtful 1
+                    ['e87', 'peaceful',1,0, false], //peaceful 1
+                    ['e88', 'comfortable',1,0, false], //comfortable 1
+                    ['e89', 'carefree',2,0, false], //carefree 2
+                    
+                    //ROW 10
+                    ['e90', 'despairing',1,0, false], //despairing 1
+                    ['e91', 'hopeless',1,0, false], //hopeless 1
+                    ['e92', 'desolate',1,0, false], //desolate 1
+                    ['e93', 'spent',1,0, false], //spent 1
+                    ['e94', 'drained',1,0, false], //drained 1
+                    ['e95', 'sleepy',2,0, false], //sleepy 2
+                    ['e96', 'complacent',1,0, false], //complacent 1
+                    ['e97', 'tranquil',1,0, false], //tranquil 1
+                    ['e98', 'cozy',1,0, false], //cozy 1
+                    ['e99', 'serene',1,0, false] //serene 1
+        ];
+                let buffers = [];
+                window.onload = function() 
+                {
+                    isLoaded = true;
+                    // snd = new Audio('snd/snd.mp3');
+                    for(let i = 0; i < sounds.length; i++)
+                    {
+                        buffers[i] = null;
+                    }
+                    for(let i = 0; i < sounds.length; i++)
+                    {
+                        if(sounds[i][2] > 1) {
+                            buffers[i] = [];
+                            for(let j = 0; j < sounds[i][2]; j++)
+                            {
+                                buffers[i][j] = null;
+                            }
+                        }
+                    }
+                    initSnd();
+
+                    // var img = document.getElementById('pic');
+                    // img.onclick = function() { playSequence(); };
+                    // var startDiv = document.getElementById('startdiv');
+                    // startDiv.onclick = function() { initSnd(); }
+                }
+
+                function initSnd() 
+                {
+                    if(isLoaded) {
+                        var AudioContext = window.AudioContext || window.webkitAudioContext;   
+                        audioCtx = new AudioContext();
+
+                        for(let i = 0; i < sounds.length; i++)
+                        {
+                            loadAllSnds(i);
+                        }
+
+                        let d = document.getElementById('description');
+                        let lbl = document.getElementById('loadbarloading');
+                        lbl.style.visibility = 'visible';
+                        d.innerHTML = 'Sounds are loading...';
+                        let anim = 0;
+
+                        let loading = setInterval(function () {
+                            loadbarloading.style.width = (checkBuffers()/166) * 200 + 'px';
+                            if(checkBuffers() == 166)
+                            {
+                                loadbarloading.style.backgroundColor = 'rgb(89, 150, 78)';
+                                loadbarloading.style.cursor = 'pointer';
+                                d.innerHTML = 'Tap to begin.';
+                                allSoundsLoaded = true;
+                                clearInterval(loading);
+                            }
+                        }, 250);
+
+                    }
+                }
+
+                function randomInt(max)
+                {
+                    rand_val = Math.floor(Math.random() * Math.floor(max + 1))
+                    return rand_val;
+                }
+
+
+
+                function loadAllSnds(input)
+                {
+                   
+                    let sndURL;
+
+                    if(sounds[input][2] > 1)
+                    {
+                        for(let j = 0; j < sounds[input][2]; j++)
+                        {
+                            sndURL = `./snd/${sounds[input][1] + j}.mp3`;
+                            const request = new XMLHttpRequest();
+                            request.open("GET", sndURL);
+                            request.responseType = "arraybuffer";
+                            request.onload = function() {
+                            let undecodedAudio = request.response;
+                            audioCtx.decodeAudioData(undecodedAudio, (data) => buffers[input][j] = data);
+                            }
+                            request.send(); 
+                        }
+                    }
+                    else
+                    {
+                        sndURL = `./snd/${sounds[input][1]}0.mp3`;
+                        const request = new XMLHttpRequest();
+                        request.open("GET", sndURL);
+                        request.responseType = "arraybuffer";
+                        request.onload = function() {
+                        let undecodedAudio = request.response;
+                        audioCtx.decodeAudioData(undecodedAudio, (data) => buffers[input] = data);
+                        }
+                        request.send(); 
+                    }
+                    
+                }
+
+                function loadSnd(input) {
+
+                    let sndURL;
+                    let bufferInput;
+
+                    if(sounds[input][2] > 1)
+                    {
+                        sndURL = `./snd/${sounds[input][1] + sounds[input][3]}.mp3`;
+                    }
+                    else
+                    {
+                        sndURL = `./snd/${sounds[input][1]}0.mp3`;
+                    }
+
+                    const request = new XMLHttpRequest();
+                    request.open("GET", sndURL);
+                    request.responseType = "arraybuffer";
+                    request.onload = function() {
+                    let undecodedAudio = request.response;
+
+                    if(sounds[input][2] > 1)
+                    {
+                        audioCtx.decodeAudioData(undecodedAudio, (data) => buffers[input][sounds[input][3]] = data);
+                    }
+                    else
+                    {
+                        audioCtx.decodeAudioData(undecodedAudio, (data) => buffers[input] = data);
+                    }
+
+                    };
+                    request.send();
+
+                };
+
+
+                function playSnd(input) {
+
+                    document.getElementById(sounds[input][0]).style.border = '2px white solid';
+                    document.getElementById(sounds[input][0]).style.opacity = '100%';
+                    activeSnds.push(audioCtx.createBufferSource());
+
+                    if(sounds[input][2] > 1)
+                    {
+                        activeSnds[activeSnds.length-1].buffer = buffers[input][sounds[input][3]];
+                    }
+                    else
+                    {
+                        activeSnds[activeSnds.length-1].buffer = buffers[input];
+                    }
+                    activeSnds[activeSnds.length-1].loop = true;
+                    activeSnds[activeSnds.length-1].connect(audioCtx.destination);
+                    activeSnds[activeSnds.length-1].start(audioCtx.currentTime); // play the source immediately
+                    sounds[input][4] = true;
+                    
+                };
+
+                function stopSnd(input) {
+
+                    document.getElementById(sounds[input][0]).style.border = '2px rgba(0,0,0,0) solid';
+                    document.getElementById(sounds[input][0]).style.opacity = '65%';
+                    for(let i = activeSnds.length-1; i >= 0; i--)
+                    {
+                        if(sounds[input][2] > 1)
+                        {
+                            if(activeSnds[i].buffer.length == buffers[input][sounds[input][3]].length)
+                            {
+                                activeSnds[i].stop();
+                                sounds[input][4] = false;
+                                activeSnds.splice(i,1);
+
+                                sounds[input][3] = (sounds[input][3] + 1) % sounds[input][2];
+
+                            }
+                        }
+                        else
+                        {
+                            if(activeSnds[i].buffer.length == buffers[input].length)
+                            {
+                                activeSnds[i].stop();
+                                sounds[input][4] = false;
+                                activeSnds.splice(i,1);
+
+                                
+                            }
+                        }
+                    }
+
+                }
+
+
+                //to call sound by name if feeling lazy
+                function selectSnd(x)
+                {
+                    for(let i = 0; i < sounds.length; i++ )
+                    { 
+                        if(sounds[i][0] == x)
+                        {
+                            if(sounds[i][4] == false)
+                            {
+                                loadSnd(i);
+                                playSnd(i);
+                            }
+                            else
+                            {
+                                stopSnd(i);
+                            }
+                        }
+                    }
+                }
+
+                function checkBuffers()
+                {
+                    let total = 0;
+                    for(let i = 0; i < sounds.length; i++)
+                    {
+                        if(sounds[i][2] > 1) {
+                            for(let j = 0; j < sounds[i][2]; j++)
+                            {
+                                if(buffers[i][j] != null) { total++; }
+                            }
+                        }
+                        else
+                        {
+                            if(buffers[i] != null) { total++; }
+                        }
+                    }
+                    return total;
+                }
+
+                function start() {
+                    if(allSoundsLoaded)
+                    {
+                        let l = document.getElementById('loadingScreen');
+                    let f = document.getElementById('fullScreen');
+                    l.style.display = 'none';
+                    f.style.visibility = 'visible';
+                    }
+                }
+
+
+                function shuffle() {
+                    // clear();
+                    // let a = [];
+                    // for(let i = 0; i < 100; i++)
+                    // {
+                    //     a.push('e' + i);
+                    // }
+                    let n = randomInt(15) + 5;
+                    for(let i = 0; i < n; i++)
+                    {
+                        selectSnd('e' + randomInt(99));
+                    }
+                }
+
+                function clear() {
+                    for(let i = 0; i < sounds.length; i++)
+                    {
+                        if(sounds[i][4] == true)
+                        {
+                            console.log(i);
+                            selectSnd(sounds[i][0]);
+                        }
+                    }
+                }
+
+
+        </script>
+    </head>
+    <body>
+        <div id="loadingScreen" onclick="start()">
+            <h1>T H E &nbsp; M U S I C A L &nbsp; M O O D &nbsp; M E T E R</h1>
+            <img src="avs.png">
+            <p id="credit">Composed and Recorded by 1st - 5th Graders</p>
+            <div id="loadbarfull">
+                <div id="loadbarloading"></div>
+            </div>
+            <p id="description">Sounds are loading...</p>
+        </div>
+            
+        <main class="fullScreen" id="fullScreen">
+            <h1>T H E &nbsp; M U S I C A L &nbsp; M O O D &nbsp; M E T E R</h1>
+            <div class='rows' id="row1">
+                <p class='e red' id="e0" onclick="selectSnd('e0')">ENRAGED</p>
+                <p class='e red' id="e1" onclick="selectSnd('e1')">PANICKED</p>
+                <p class='e red' id="e2" onclick="selectSnd('e2')">STRESSED</p>
+                <p class='e red' id="e3" onclick="selectSnd('e3')">JITTERY</p>
+                <p class='e red' id="e4" onclick="selectSnd('e4')">SHOCKED</p>
+                <p class='e yellow smaller' id="e5" onclick="selectSnd('e5')">SURPRISED</p>
+                <p class='e yellow' id="e6" onclick="selectSnd('e6')">UPBEAT</p>
+                <p class='e yellow' id="e7" onclick="selectSnd('e7')">FESTIVE</p>
+                <p class='e yellow smaller' id="e8" onclick="selectSnd('e8')">EXHILIRATED</p>
+                <p class='e yellow' id="e9" onclick="selectSnd('e9')">ECSTATIC</p>
+            </div>
+            <div class='rows' id="row2">
+                <p class='e red' id="e10" onclick="selectSnd('e10')">LIVID</p>
+                <p class='e red' id="e11" onclick="selectSnd('e11')">FURIOUS</p>
+                <p class='e red smaller' id="e12" onclick="selectSnd('e12')">FRUSTRATED</p>
+                <p class='e red' id="e13" onclick="selectSnd('e13')">TENSE</p>
+                <p class='e red' id="e14" onclick="selectSnd('e14')">STUNNED</p>
+                <p class='e yellow' id="e15" onclick="selectSnd('e15')">HYPER</p>
+                <p class='e yellow' id="e16" onclick="selectSnd('e16')">CHEERFUL</p>
+                <p class='e yellow smaller' id="e17" onclick="selectSnd('e17')">MOTIVATED</p>
+                <p class='e yellow' id="e18" onclick="selectSnd('e18')">INSPIRED</p>
+                <p class='e yellow' id="e19" onclick="selectSnd('e19')">ELATED</p>
+            </div>
+            <div class='rows' id="row3">
+                <p class='e red' id="e20" onclick="selectSnd('e20')">FUMING</p>
+                <p class='e red smaller' id="e21" onclick="selectSnd('e21')">FRIGHTENED</p>
+                <p class='e red' id="e22" onclick="selectSnd('e22')">ANGRY</p>
+                <p class='e red' id="e23" onclick="selectSnd('e23')">NERVOUS</p>
+                <p class='e red' id="e24" onclick="selectSnd('e24')">RESTLESS</p>
+                <p class='e yellow smaller' id="e25" onclick="selectSnd('e25')">ENERGIZED</p>
+                <p class='e yellow' id="e26" onclick="selectSnd('e26')">LIVELY</p>
+                <p class='e yellow' id="e27" onclick="selectSnd('e27')">EXCITED</p>
+                <p class='e yellow smaller' id="e28" onclick="selectSnd('e28')">OPTIMISTIC</p>
+                <p class='e yellow smaller' id="e29" onclick="selectSnd('e29')">ENTHUSIASTIC</p>
+            </div>
+            <div class='rows' id="row4">
+                <p class='e red' id="e30" onclick="selectSnd('e30')">ANXIOUS</p>
+                <p class='e red smaller' id="e31" onclick="selectSnd('e31')">APPREHENSIVE</p>
+                <p class='e red' id="e32" onclick="selectSnd('e32')">WORRIED</p>
+                <p class='e red' id="e33" onclick="selectSnd('e33')">IRRITATED</p>
+                <p class='e red' id="e34" onclick="selectSnd('e34')">ANNOYED</p>
+                <p class='e yellow' id="e35" onclick="selectSnd('e35')">PLEASED</p>
+                <p class='e yellow' id="e36" onclick="selectSnd('e36')">FOCUSED</p>
+                <p class='e yellow' id="e37" onclick="selectSnd('e37')">HAPPY</p>
+                <p class='e yellow' id="e38" onclick="selectSnd('e38')">PROUD</p>
+                <p class='e yellow' id="e39" onclick="selectSnd('e39')">THRILLED</p>
+            </div>
+            <div class='rows' id="row5">
+                <p class='e red' id="e40" onclick="selectSnd('e40')">REPULSED</p>
+                <p class='e red' id="e41" onclick="selectSnd('e41')">TROUBLED</p>
+                <p class='e red smaller' id="e42" onclick="selectSnd('e42')">CONCERNED</p>
+                <p class='e red' id="e43" onclick="selectSnd('e43')">UNEASY</p>
+                <p class='e red' id="e44" onclick="selectSnd('e44')">PEEVED</p>
+                <p class='e yellow' id="e45" onclick="selectSnd('e45')">PLEASANT</p>
+                <p class='e yellow' id="e46" onclick="selectSnd('e46')">JOYFUL</p>
+                <p class='e yellow' id="e47" onclick="selectSnd('e47')">HOPEFUL</p>
+                <p class='e yellow' id="e48" onclick="selectSnd('e48')">PLAYFUL</p>
+                <p class='e yellow' id="e49" onclick="selectSnd('e49')">BLISSFUL</p>
+            </div>
+            <div class='rows' id="row6">
+                <p class='e blue smaller' id="e50" onclick="selectSnd('e50')">DISGUSTED</p>
+                <p class='e blue' id="e51" onclick="selectSnd('e51')">GLUM</p>
+                <p class='e blue smaller' id="e52" onclick="selectSnd('e52')">DISAPPOINTED</p>
+                <p class='e blue' id="e53" onclick="selectSnd('e53')">DOWN</p>
+                <p class='e blue smaller' id="e54" onclick="selectSnd('e54')">APATHETIC</p>
+                <p class='e green' id="e55" onclick="selectSnd('e55')">AT EASE</p>
+                <p class='e green smaller' id="e56" onclick="selectSnd('e56')">EASYGOING</p>
+                <p class='e green' id="e57" onclick="selectSnd('e57')">CONTENT</p>
+                <p class='e green' id="e58" onclick="selectSnd('e58')">LOVING</p>
+                <p class='e green smaller' id="e59" onclick="selectSnd('e59')">FULFILLED</p>
+            </div>
+            <div class='rows' id="row7">
+                <p class='e blue smaller' id="e60" onclick="selectSnd('e60')">PESSIMISTIC</p>
+                <p class='e blue' id="e61" onclick="selectSnd('e61')">MOROSE</p>
+                <p class='e blue smaller' id="e62" onclick="selectSnd('e62')">DISCOURAGED</p>
+                <p class='e blue' id="e63" onclick="selectSnd('e63')">SAD</p>
+                <p class='e blue' id="e64" onclick="selectSnd('e64')">BORED</p>
+                <p class='e green' id="e65" onclick="selectSnd('e65')">CALM</p>
+                <p class='e green' id="e66" onclick="selectSnd('e66')">SECURE</p>
+                <p class='e green' id="e67" onclick="selectSnd('e67')">SATISFIED</p>
+                <p class='e green' id="e68" onclick="selectSnd('e68')">GRATEFUL</p>
+                <p class='e green' id="e69" onclick="selectSnd('e69')">TOUCHED</p>
+            </div>
+            <div class='rows' id="row8">
+                <p class='e blue smaller' id="e70" onclick="selectSnd('e70')">ALIENATED</p>
+                <p class='e blue smaller' id="e71" onclick="selectSnd('e71')">MISERABLE</p>
+                <p class='e blue' id="e72" onclick="selectSnd('e72')">LONELY</p>
+                <p class='e blue smaller' id="e73" onclick="selectSnd('e73')">DISHEARTENED</p>
+                <p class='e blue' id="e74" onclick="selectSnd('e74')">TIRED</p>
+                <p class='e green' id="e75" onclick="selectSnd('e75')">RELAXED</p>
+                <p class='e green' id="e76" onclick="selectSnd('e76')">CHILL</p>
+                <p class='e green' id="e77" onclick="selectSnd('e77')">RESTFUL</p>
+                <p class='e green' id="e78" onclick="selectSnd('e78')">BLESSED</p>
+                <p class='e green' id="e79" onclick="selectSnd('e79')">BALANCED</p>
+            </div>
+            <div class='rows' id="row9">
+                <p class='e blue smaller' id="e80" onclick="selectSnd('e80')">DESPONDENT</p>
+                <p class='e blue smaller' id="e81" onclick="selectSnd('e81')">DEPRESSED</p>
+                <p class='e blue' id="e82" onclick="selectSnd('e82')">SULLEN</p>
+                <p class='e blue smaller' id="e83" onclick="selectSnd('e83')">EXHAUSTED</p>
+                <p class='e blue' id="e84" onclick="selectSnd('e84')">FATIGUED</p>
+                <p class='e green' id="e85" onclick="selectSnd('e85')">MELLOW</p>
+                <p class='e green smaller' id="e86" onclick="selectSnd('e86')">THOUGHTFUL</p>
+                <p class='e green' id="e87" onclick="selectSnd('e87')">PEACEFUL</p>
+                <p class='e green smaller' id="e88" onclick="selectSnd('e88')">COMFORTABLE</p>
+                <p class='e green smaller' id="e89" onclick="selectSnd('e89')">CAREFREE</p>
+            </div>
+            <div class='rows' id="row10">
+                <p class='e blue smaller' id="e90" onclick="selectSnd('e90')">DESPAIRING</p>
+                <p class='e blue' id="e91" onclick="selectSnd('e91')">HOPELESS</p>
+                <p class='e blue' id="e92" onclick="selectSnd('e92')">DESOLATE</p>
+                <p class='e blue' id="e93" onclick="selectSnd('e93')">SPENT</p>
+                <p class='e blue' id="e94" onclick="selectSnd('e94')">DRAINED</p>
+                <p class='e green' id="95" onclick="selectSnd('e95')">SLEEPY</p>
+                <p class='e green smaller' id="e96" onclick="selectSnd('e96')">COMPLACENT</p>
+                <p class='e green' id="e97" onclick="selectSnd('e97')">TRANQUIL</p>
+                <p class='e green' id="e98" onclick="selectSnd('e98')">COZY</p>
+                <p class='e green' id="e99" onclick="selectSnd('e99')">SERENE</p>
+            </div>
+            <div class = 'buttons' id="row11">
+                <!-- <p class='g' onclick="shuffle()">Shuffle</p> -->
+                <p id="middle">Click on a box to hear the mood. Click again to turn it off.</p>
+                <!-- <p class="g" onclick="clear()">Clear</p> -->
+            </div>
+        </main>
+        <!-- <div id="startdiv" class="fullScreen floatingDiv">
+        </div> -->
+    </body>
+</html>

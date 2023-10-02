@@ -1,0 +1,132 @@
+@font-face {
+    font-family: 'The Bold Font';
+    src: url(theboldfont.ttf);
+    }
+
+body {
+    overflow: hidden;
+    background-color: rgb(23, 23, 23);
+    /* user-select: none; */
+}
+
+.fullScreen {
+    visibility: hidden;
+    width: 1100px;
+    height: 700px;
+}
+
+main {
+    margin: auto;
+    display: block;
+    background-color: rgb(23, 23, 23);
+}
+
+.rows {
+    display: flex;
+    justify-content: center;
+}
+
+#loadbarloading {
+    width: 100px;
+    height: 40px;
+    border: 2px white solid;
+    background-color: rgba(255,255,255,0.5);
+    margin: auto;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+}
+
+#middle { width: 100%; }
+
+#loadingScreen > p { 
+    color: white; 
+    margin: auto;
+    width: 500px;
+}
+
+.buttons {
+    display: flex;
+    justify-content: space-between;
+}
+
+p {
+    height: 44px;
+    width: 95px;
+    text-align: center;
+    line-height: 44px;
+    border-radius: 10px;
+}
+
+.red { background-color: rgb(244, 139, 139); }
+.yellow { background-color: rgb(230, 252, 33); }
+.blue { background-color: rgb(32, 144, 224); }
+.green { background-color: rgb(89, 150, 78); }
+
+
+.smaller {
+    font-size: 0.7rem;
+}
+
+p { 
+    margin: 5px; 
+    user-select: none;
+    font-family: Helvetica;
+    font-weight: bold;
+}
+
+#loadingScreen { margin-top: 100px; }
+
+.floatingDiv {
+    position: absolute;
+    top: 0;
+    background-color: wheat;
+}
+
+img {
+    display: block;
+    width: 500px;
+    text-align: center;
+    margin: auto;
+    margin-top: 40px;
+
+}
+
+#middle { color: white; }
+
+.e:active {
+    color: black;
+}
+
+.e {
+    opacity: 65%;
+    color: rgba(0,0,0,1);
+    /* color: rgba(0,0,0,0); */
+}
+
+.e, .g { border: 2px rgba(0,0,0,0) solid;
+    cursor: pointer; 
+}
+
+.g {
+    background-color: white;
+    opacity: 65%;
+    /* color: rgba(0,0,0,0); */
+}
+
+.e:hover, .g:hover {
+    opacity: 100%;
+;}
+
+#row1, #row11 { 
+    padding-top: 10px; 
+}
+
+h1 { 
+    margin: 0; 
+    font-family: 'Helvetica';
+    color: white;
+    text-align: center;
+    padding-top: 10px;
+    
+}
